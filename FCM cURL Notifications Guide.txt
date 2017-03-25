@@ -1,0 +1,112 @@
+Sending Push Notifications to FCM With cURL
+
+cURL is a CLI tool that can send HTTP POST requests (and a lot more)
+
+In order to send a notification, we send a Post request (in a single line of text, through the CLI).
+
+cURL Installation - google it, you need an binary/executable for your OS / CLI.
+
+*IMPORTANT NOTE!*
+
+Before we send a notification from our computer, we need to make sure that we are authorized by the Google project to do so.
+If we won't, it will reject our request with a 401 UNAUTHORIZED reply.
+
+To Authorize an IP address to send requests to our FCM API Key, follow:
+1.Go to Google API Credentials
+2.Under API Keys , Edit Browser Key
+3.Under Key restriction , Select IP Address, and Add your IP to the list.
+4.Save and Exit
+
+Sending Push Notifications to FCM With Javascript Using XMLHTTPREQUEST
+
+sendNotif: function() {
+    var serverKey = "key=AAAAQ9RwKek:APA91bEZg6iP8lDy2pu6mnMzrZxO4Vg-krCJI2pVyNDTy6p4jySI03Goxcf---BHPFGSE1MIpVsSmnsU2eo2OBkXdjANoaKl8W1js8n4IzDx7YP5U4w2w58CpdZUlG6IApLk_69e5vFmfnkEwZEsB1u9eIrnrk8gbg"
+    var url = "https://fcm.googleapis.com/fcm/send";
+    var recepient = "duNRxCZ9VIM:APA91bHhqpR4VF6wiog0urUp63p4fl96F8UTEnKtvUbWZdjHf9Nde7sFHyfIDdQ-aswilXXWeHjBL_FmrLcChD0fKmVc0KqZdQWtgmHISVTG1HKvO3h_Vgv7Awe0C2bZjzjOW1hdEPdZ";
+    var clickAction = "https://shacharcodechallenge.firebaseapp.com";
+    var contentTitle = "\u23f2 Time for some DOM! ";
+    var contentBody = "\ud83d\udcd6 Click here to  read! ";
+
+    var notificationContent = {
+        "to": recepient,
+        "notification": {
+            "icon": "images/icons/icon-512x512.png",
+            "click_action": clickAction,
+            "title": contentTitle,
+            "body": contentBody
+        }
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.setRequestHeader('Authorization', serverKey);
+
+    xhr.send(JSON.stringify(notificationContent));
+}
+
+Request Structure:
+
+curl **Calling cURL**
+--header "Authorization: key=AIzaS..." **Auth header - contains the Firebase Project Web API Key found in the Console > Project Settings > Web API Key. Used For identifying the project.**
+--header "Content-Type:application/json" **Type Header**
+-d '{   **Beginning of the JSON object that contains the content aka payload of the message**
+"to":"duNRx...", ** Dveice Messaging Token - The ID for a specific device that has logged in and authorized notifications. Found in the Database (reflected from client)**
+"notification":{ ** The payload - notification content, JSON Object, pretty simple**
+  "icon": "images/icons/icon-512x512.png",
+  "click_action" : "https://shacharcodechallenge.firebaseapp.com",
+  "title":"Good Job!",
+  "body":"We are proud of you. \ud83d\ude0e \ud83d\ude0e \ud83d\ude0e "
+    }
+}'
+https://fcm.googleapis.com/fcm/send **Where you send the request to**
+
+Extras: Use http://www.charbase.com/ or http://apps.timwhitlock.info/emoji/tables/iphone#android to send Emoji in the notification. Make sure you use the JS escape characters (since its JSON)
+
+Examples:
+
+To Roie's acc:
+"duNRxCZ9VIM:APA91bHhqpR4VF6wiog0urUp63p4fl96F8UTEnKtvUbWZdjHf9Nde7sFHyfIDdQ-aswilXXWeHjBL_FmrLcChD0fKmVc0KqZdQWtgmHISVTG1HKvO3h_Vgv7Awe0C2bZjzjOW1hdEPdZ"
+
+curl --header "Authorization: key=AIzaSyA5755ciMTm0L0yY4DuiQW8lAphsFZpNfc" --header "Content-Type:application/json" -d '{"to":"duNRxCZ9VIM:APA91bHhqpR4VF6wiog0urUp63p4fl96F8UTEnKtvUbWZdjHf9Nde7sFHyfIDdQ-aswilXXWeHjBL_FmrLcChD0fKmVc0KqZdQWtgmHISVTG1HKvO3h_Vgv7Awe0C2bZjzjOW1hdEPdZ",
+"notification":{"icon": "images/icons/icon-512x512.png","click_action" : "https://shacharcodechallenge.firebaseapp.com",
+"title":"\u23f2 Time for some DOM! \u23f2",
+"body":"\ud83d\udcd6 Click here to go read! \ud83d\udcd6"
+    }
+}' https://fcm.googleapis.com/fcm/send
+
+To Roiemfba's acc:
+"ed18WiXQ5B8:APA91bEhTxMe96qOkHDHWRCggXhvntp9RlF3hXpr69kT4iRQ5ETmu5tUbW1hF_eWCBUf6ExaiIQKyzzytMg_q6HU6VR-0--IZ4TuDFO_5TTjQ1fC2SZRH6kwnTguTiQGIJokOukDGIoE"
+curl --header "Authorization: key=AAAAQ9RwKek:APA91bEZg6iP8lDy2pu6mnMzrZxO4Vg-krCJI2pVyNDTy6p4jySI03Goxcf---BHPFGSE1MIpVsSmnsU2eo2OBkXdjANoaKl8W1js8n4IzDx7YP5U4w2w58CpdZUlG6IApLk_69e5vFmfnkEwZEsB1u9eIrnrk8gbg" --header "Content-Type:application/json" -d '{"to":"ed18WiXQ5B8:APA91bEhTxMe96qOkHDHWRCggXhvntp9RlF3hXpr69kT4iRQ5ETmu5tUbW1hF_eWCBUf6ExaiIQKyzzytMg_q6HU6VR-0--IZ4TuDFO_5TTjQ1fC2SZRH6kwnTguTiQGIJokOukDGIoE",
+"notification":{"icon": "images/icons/icon-512x512.png","click_action" : "https://shacharcodechallenge.firebaseapp.com",
+"title":"\u23f2 Time for some DOM! \u23f2",
+"body":"\ud83d\udcd6 Click here to go read! \ud83d\udcd6"
+    }
+}' https://fcm.googleapis.com/fcm/send
+
+
+To Shachar's phone:
+
+"d6LWii1K3_c:APA91bEvZc4XDZQtaCKMJ56U-l-ePmScQ2hKcsLdoizYPY8GppvVwrfxRiIBvO3n_IYR65TQ4_tY5YSKs-nClPFqlXwiiRwHNGhQyzhGNDdcFjuGRUApUnU-M3e7XMenpfLw2vtU3gT4"
+
+
+curl --header "Authorization: key=AIzaSyA5755ciMTm0L0yY4DuiQW8lAphsFZpNfc" --header "Content-Type:application/json" -d '{"to":"d6LWii1K3_c:APA91bEvZc4XDZQtaCKMJ56U-l-ePmScQ2hKcsLdoizYPY8GppvVwrfxRiIBvO3n_IYR65TQ4_tY5YSKs-nClPFqlXwiiRwHNGhQyzhGNDdcFjuGRUApUnU-M3e7XMenpfLw2vtU3gT4",
+"notification":{"icon": "images/icons/icon-512x512.png","click_action" : "https://shacharcodechallenge.firebaseapp.com",
+    "title":"Cool,",
+    "body":"Right? ;) )"
+    }
+}' https://fcm.googleapis.com/fcm/send
+
+curl --header "Authorization: key=AIzaSyA5755ciMTm0L0yY4DuiQW8lAphsFZpNfc" --header "Content-Type:application/json" -d '{"to":"d6LWii1K3_c:APA91bEvZc4XDZQtaCKMJ56U-l-ePmScQ2hKcsLdoizYPY8GppvVwrfxRiIBvO3n_IYR65TQ4_tY5YSKs-nClPFqlXwiiRwHNGhQyzhGNDdcFjuGRUApUnU-M3e7XMenpfLw2vtU3gT4",
+"notification":{"icon": "images/icons/icon-512x512.png","click_action" : "https://shacharcodechallenge.firebaseapp.com",
+    "title":"Good Job!",
+    "body":"We are proud of you. \ud83d\ude0e \ud83d\ude0e \ud83d\ude0e "
+    }
+}' https://fcm.googleapis.com/fcm/send
+
+curl --header "Authorization: key=AIzaSyA5755ciMTm0L0yY4DuiQW8lAphsFZpNfc" --header "Content-Type:application/json" -d '{"to":"d6LWii1K3_c:APA91bEvZc4XDZQtaCKMJ56U-l-ePmScQ2hKcsLdoizYPY8GppvVwrfxRiIBvO3n_IYR65TQ4_tY5YSKs-nClPFqlXwiiRwHNGhQyzhGNDdcFjuGRUApUnU-M3e7XMenpfLw2vtU3gT4",
+"notification":{"icon": "images/icons/icon-512x512.png","click_action" : "http://www.w3schools.com/js/js_htmldom.asp",
+    "title":"\u23f2 Time for some DOM! \u23f2",
+    "body":"\ud83d\udcd6 Click here to go read! \ud83d\udcd6"
+    }
+}' https://fcm.googleapis.com/fcm/send

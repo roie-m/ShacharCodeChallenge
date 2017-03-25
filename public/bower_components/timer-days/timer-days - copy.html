@@ -1,0 +1,70 @@
+<html><head><link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-styles/paper-styles.html">
+<link rel="import" href="../paper-styles/shadow.html">
+
+
+
+</head><body><dom-module id="timer-days">
+  <style>
+    :host {
+      min-width: 400px;
+      display: block;
+      text-align: center;
+      padding-top: 5px;
+      padding-bottom: 5px;
+
+      background-color: var(--timer-days-background-color, #FFD54F);
+      border: 1px solid var(--timer-days-border-color, #212121);
+      color: var(--timer-days-font-color, #212121);
+      @apply(--shadow-elevation-4dp);
+
+      transition-property: background-color, border, color;
+      transition-duration: 300ms;
+      transition-timing-function: linear;
+
+      /*For Safari*/
+      -webkit-transition-property: background-color, border, color;
+      -webkit-transition-duration: 300ms;
+      -webkit-transition-timing-function: linear;
+    }
+
+    :host(:hover) {
+      background-color: var(--timer-days-hover-background-color, #4E342E);
+      border: 1px solid var(--timer-days-hover-border-color, #CFD8DC);
+      color: var(--timer-days-hover-font-color, #CFD8DC);
+    }
+
+    .description {
+      margin: 5px 0px 5px 0px;
+      font-size: var(--timer-days-font-description-size, 15px)
+    }
+
+    .number{
+      font-size: var(--timer-days-font-number-size, 35px);
+    }
+
+    .text{
+      font-size: var(--timer-days-font-text-size, 18px);
+    }
+
+    .inline {
+      display: inline-block;
+      text-align: center;
+      margin: 1px 10px 6px 10px;
+    }
+  </style>
+
+  <template>
+    <p class="description">{{before}}</p>
+    <span class="inline"><span class="number">{{_days}}</span><br><span class="text">{{_chosenWords.0}}</span></span>
+    <span class="inline"><span class="number">{{_hours}}</span><br><span class="text">{{_chosenWords.1}}</span></span>
+    <span class="inline"><span class="number">{{_mins}}</span><br><span class="text">{{_chosenWords.2}}</span></span>
+    <span class="inline"><span class="number">{{_secs}}</span><br><span class="text">{{_chosenWords.3}}</span></span>
+    <p class="description">{{after}}</p>
+  </template>
+</dom-module>
+
+
+
+<script>Polymer({is:"timer-days",properties:{targetDate:String,before:{type:String,value:""},after:{type:String,value:""},lang:{type:String,value:"en"},_realTarget:Date,_days:Number,_hours:Number,_mins:Number,_secs:Number,wordDay:Array,_wordHour:Array,_wordMin:Array,_wordSec:Array,_chosenWords:Array},ready:function(){this._adjustToTimezone(),this._adaptLanguage(),this._updateTimer()},_adjustToTimezone:function(){this.targetDate+="Z";var e=new Date(this.targetDate),t=e.getTimezoneOffset();this._realTarget=new Date(e.getTime()+6e4*t)},_adaptLanguage:function(){switch(this.lang){case"es":this._wordDay=["día","días"],this._wordHour=["hora","horas"],this._wordMin=["minuto","minutos"],this._wordSec=["segundo","segundos"];break;case"fr":this._wordDay=["jour","jours"],this._wordHour=["heure","heures"],this._wordMin=["minute","minutes"],this._wordSec=["seconde","secondes"];break;case"pt":this._wordDay=["dia","dias"],this._wordHour=["hora","horas"],this._wordMin=["minuto","minutos"],this._wordSec=["segundo","segundos"];break;case"it":this._wordDay=["giorno","giornos"],this._wordHour=["ora","oras"],this._wordMin=["minuto","minutos"],this._wordSec=["secondo","secondos"];break;case"de":this._wordDay=["Tag","Tage"],this._wordHour=["Stunde","Stunden"],this._wordMin=["Minute","Minuten"],this._wordSec=["Sekunde","Sekunden"];break;default:this._wordDay=["day","days"],this._wordHour=["hour","hours"],this._wordMin=["minute","minutes"],this._wordSec=["second","seconds"]}},_updateTimer:function(){this._calculateGap(),this._chosenWords=this._wordsToDisplay(),this.async(this._updateTimer,1e3)},_calculateGap:function(){var e=new Date,t=this._realTarget-e;if(t>=0){this._days=Math.floor(t/864e5);var s=t%864e5;this._hours=Math.floor(s/36e5);var r=s%36e5;this._mins=Math.floor(r/6e4);var o=r%6e4;this._secs=Math.floor(o/1e3)+1}else this._days=0,this._hours=0,this._mins=0,this._secs=0,this._tomorrowAtEleven()},_tomorrowAtEleven:function(){this._realTarget.setDate(this._realTarget.getDate()+1)},_wordsToDisplay:function(){return[1!=this._days?this._wordDay[1]:this._wordDay[0],1!=this._hours?this._wordHour[1]:this._wordHour[0],1!=this._mins?this._wordMin[1]:this._wordMin[0],1!=this._secs?this._wordSec[1]:this._wordSec[0]]}});</script>
+</body></html>

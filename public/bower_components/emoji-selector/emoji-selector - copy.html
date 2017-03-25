@@ -1,0 +1,165 @@
+<html><head><link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-styles/default-theme.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+
+
+
+
+</head><body><dom-module id="emoji-selector">
+  <style>
+    :host {
+      display: inline-block;
+      --paper-tabs-selection-bar-color: var(--default-primary-color);
+    }
+
+    paper-tabs {
+      height: 30px;
+      color: var(--emoji-selector-icon-color, black);
+    }
+
+    paper-tab iron-icon {
+      --iron-icon-width: 18px;
+      --iron-icon-height: 18px;
+    }
+
+    #searchInput {
+      --paper-input-container-input: {
+        text-align: center;
+      };
+    };
+
+    iron-pages {
+      height: 155px;
+    }
+
+    #menu {
+      padding: 0;
+    }
+
+    .box {
+      background: var(--emoji-selector-background-color, white);
+      border-radius: 2px;
+      box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
+
+      width: 270px;
+      height: 240px;
+      font-size: 15px;
+
+      @apply(--emoji-selector);
+    }
+
+    .section-title {
+      padding: 0;
+      margin: 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--emoji-selector-icon-color, black);
+    }
+
+    .emoji-section {
+      height: 100%;
+      overflow-y: auto;
+      flex-direction: column;
+      flex-wrap: wrap;
+      padding-left: 8px;
+      padding-top: 5px;
+    }
+
+    .emoji-icon {
+      cursor: pointer;
+      text-align: center;
+      display: inline-block;
+      font-size: 18px;
+      line-height: 24px;
+      width: 24px;
+      height: 24px;
+
+      /* >.< */
+      -webkit-transition: all .14s linear;
+    	-moz-transition: all .14s linear;
+    	-o-transition: all .14s linear;
+    	-ms-transition: all .14s linear;
+    	transition: all .14s linear;
+
+      @apply(--emoji-selector-icon);
+    }
+
+    .emoji-icon:hover {
+      transform: scale(1.3, 1.3);
+      -webkit-transform: scale(1.3, 1.3);
+      @apply(--emoji-selector-icon-hover);
+    }
+
+    paper-icon-button.clear-button {
+      color: var(--paper-input-container-color);
+      --iron-icon-width: 15px;
+      --iron-icon-height: 15px;
+      padding: 0px 4px;
+      margin-left: 4px;
+    }
+  </style>
+
+  <template>
+    <iron-media-query query="(max-width: 375px)" query-matches="{{smallScreen}}"></iron-media-query>
+
+    <paper-menu-button id="menu" vertical-align="top" vertical-offset="40" horizontal-align="[[_computeHorizontalAlign(smallScreen)]]" ignore-select="">
+      <paper-icon-button icon="face" class="dropdown-trigger"></paper-icon-button>
+      <paper-menu class="dropdown-content">
+        <div class="box">
+          <paper-input autofocus="" no-label-float="" id="searchInput" placeholder="find an emoji!" on-input="_onSearchInput">
+            <paper-icon-button suffix="" on-tap="_onClearSearchInput" id="clearSearch" class="clear-button hide" icon="clear" alt="clear" title="clear" tabindex="0" hidden="">
+            </paper-icon-button>
+          </paper-input>
+
+          <paper-tabs selected="{{selected}}" id="tabs" tabindex="0">
+            <paper-tab><iron-icon icon="icons:history"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="social:mood"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="maps:local-florist"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="maps:local-pizza"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="social:cake"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="maps:directions-walk"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="account-balance"></iron-icon></paper-tab>
+            <paper-tab><iron-icon icon="perm-phone-msg"></iron-icon></paper-tab>
+          </paper-tabs>
+
+          <iron-pages selected="{{selected}}">
+            <div class="emoji-section">
+              <p class="section-title">Recently Used</p>
+              <template is="dom-repeat" id="resultList" items="{{recentlyUsedEmojis}}">
+                <div class="emoji-icon" on-tap="_onEmojiClick">{{item}}</div>
+              </template>
+            </div>
+            <template is="dom-repeat" items="[[emojis]]" as="category">
+              <div class="emoji-section">
+                <p class="section-title">[[category.title]]</p>
+                <template is="dom-repeat" items="[[category.items]]">
+                  <div class="emoji-icon" on-tap="_onEmojiClick" title="{{item.keywords}}">{{item.char}}</div>
+                </template>
+              </div>
+            </template>
+            <div class="emoji-section">
+              <p class="section-title">Search Results</p>
+              <template is="dom-repeat" id="resultList" items="{{searchResults}}">
+                <div class="emoji-icon" on-tap="_onEmojiClick" title="{{item.keywords}}">{{item.char}}</div>
+              </template>
+            </div>
+          </iron-pages>
+        </div>
+      </paper-menu>
+    </paper-menu-button>
+
+  </template>
+
+</dom-module>
+
+<script>Polymer({is:"emoji-selector",properties:{inputTarget:{type:Object},selected:{type:Number,value:0},emojis:{type:Array,value:[]},recentlyUsedEmojis:{type:Array,value:[]},searchResults:{type:Array,value:[]},smallScreen:{type:Boolean,value:!1}},ready:function(){this.inputTarget=Polymer.dom(this).parentNode,this._selectedTabBeforeSearch=1},attached:function(){this._hasLocalStorage=this._checkLocalStorage(),this._hasLocalStorage&&(this._localStorageKey="__emoji-selector-recently-used__",this.recentlyUsedEmojis=JSON.parse(localStorage.getItem(this._localStorageKey))),null===this.recentlyUsedEmojis&&(this.recentlyUsedEmojis=[]),this._loadEmojiLib()},_loadEmojiLib:function(){var e=new XMLHttpRequest,t=this.resolveUrl("../emojilib/emojis.json");e.open("GET",t,!0);var s=this;e.onload=function(){e.status>=200&&e.status<400&&s._parseEmojiLib(JSON.parse(e.response))},e.send()},_parseEmojiLib:function(e){this.emojis=[{name:"people",items:[],title:"people"},{name:"nature",items:[],title:"nature"},{name:"foodanddrink",items:[],title:"food and drink"},{name:"celebration",items:[],title:"celebration"},{name:"activity",items:[],title:"activity"},{name:"travelandplaces",items:[],title:"travel and places"},{name:"objectsandsymbols",items:[],title:"objects and symbols"},{name:"flags",items:[],title:"flags"}];var t={people:0,nature:1,foodanddrink:2,celebration:3,activity:4,travelandplaces:5,objectsandsymbols:6,flags:7};this._searchPageIndex=9;for(var s in e){var i=e[s].category,a=t[i];if(void 0!==a){var r=e[s].keywords;r.indexOf(s)==-1&&r.push(s),this.emojis[a].items.push({char:e[s].char,keywords:r.join(" ").toLowerCase()})}}this.selected=0==this.recentlyUsedEmojis.length?1:0},_onEmojiClick:function(e){if(this.inputTarget){var t=e.target.textContent,s=this.recentlyUsedEmojis.indexOf(t);s!=-1&&this.splice("recentlyUsedEmojis",s,1),this.unshift("recentlyUsedEmojis",t),this._hasLocalStorage&&localStorage.setItem(this._localStorageKey,JSON.stringify(this.recentlyUsedEmojis));var i="";this.inputTarget.value&&(i=this.inputTarget.value);var a=this._updateValueAndPreserveCaret(i,t);this.inputTarget._onInput&&this.inputTarget._onInput({target:{value:a}}),this.inputTarget.focus(),this._closeMenu()}},_onSearchInput:function(e){var t=this.$.searchInput.value.toLowerCase();if(""==t.trim()&&this.selected==this._searchPageIndex)return this.clearSearch.hidden=!0,void(this.selected=this._selectedTabBeforeSearch);if(this.selected!=this._searchPageIndex&&(this._selectedTabBeforeSearch=this.selected),this.$.clearSearch.hidden=!1,this.emojis){this.selected=this._searchPageIndex,this.searchResults=[];for(var s=0;s<this.emojis.length;s++)for(var i=this.emojis[s],a=0;a<i.items.length;a++)i.items[a].keywords.indexOf(t)!=-1&&this.push("searchResults",{char:i.items[a].char,keywords:i.items[a].keywords})}},_onClearSearchInput:function(){this.$.clearSearch.hidden=!0,this.$.searchInput.value="",this.selected=this._selectedTabBeforeSearch},_closeMenu:function(){this.$.searchInput.focus(),this.selected!=this._searchPageIndex&&(this.$.searchInput.value=""),this.$.searchInput.selectionStart=0,this.$.menu.close(),this.$.tabs.notifyResize()},_updateValueAndPreserveCaret:function(e,t){var s,i,a=this.inputTarget.inputElement;a?(s=a.selectionStart||e.length,i=a.selectionEnd||e.length+1):(s=this.inputTarget.selectionStart||e.length,i=this.inputTarget.selectionEnd||e.length+1);var r=e.substring(0,s),n=e.substring(i,e.length),o=r+t+n;return this.inputTarget.value=o,a?(a.selectionStart=s+t.length,a.selectionEnd=s+t.length):(this.inputTarget.selectionStart=s+t.length,this.inputTarget.selectionEnd=s+t.length),o},_computeHorizontalAlign:function(e){return e?"right":"left"},_checkLocalStorage:function(){var e="__emoji_test_local_storage__";try{return localStorage.setItem(e,"a"),localStorage.removeItem(e),!0}catch(e){return!1}}});</script>
+</body></html>

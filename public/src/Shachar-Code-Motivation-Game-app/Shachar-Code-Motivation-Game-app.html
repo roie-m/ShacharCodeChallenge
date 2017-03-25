@@ -1,0 +1,247 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+
+<link rel="import" href="../../bower_components/timer-days/timer-days.html">
+
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-messaging.html">
+
+
+
+</head><body><dom-module id="Shachar-Code-Motivation-Game-app">
+    <template>
+<style>
+      :host {
+
+        display: inherit;
+        text-align: center;
+        font-family: monospace;
+        font-weight: bold;
+        font-size: 22px;
+        color: #fff;
+
+
+
+
+      }
+      #tb {
+    /*background-color: #ba4feb;*/
+    text-align: center;
+    font-family: monospace;
+    font-size: 22px;
+
+  }
+
+  app-header {
+  --app-header-background-front-layer: {
+    background-image: url("../../images/icons/icon-512x512.png");
+  };
+}
+
+
+    paper-progress {
+     --paper-progress-active-color:  #b8ec0c;
+     --paper-progress-container-color:#0dcced;
+     --paper-progress-height: 10px;
+     height: inherit;
+     width: inherit;
+
+  }
+    paper-input{
+      width:50%;
+
+      display:inline-block;
+      --paper-input-container-color:white;
+      --paper-input-container-focus-color:white;
+      --paper-input-container-color:white;
+      --paper-input-container-focus-color:white;
+    }
+
+    paper-slider{
+      width:70%;
+      display:inline-flex;
+      --paper-slider-container-color:white;
+      --paper-slider-knob-color:white;
+      --paper-slider-pin-color:lightskyblue;
+      --paper-slider-font-color:white;
+      --paper-slider-knob-start-color:purple;
+    }
+
+    paper-radio-group{
+      --paper-input-container-color:white;
+      --paper-input-container-focus-color:white;
+      --paper-input-container-color:white;
+    }
+
+    paper-button{
+      display: block;
+    }
+
+  timer-days{
+    --timer-days-background-color:rgba(#1608be, 0.19);
+    --timer-days-hover-background-color:rgba(#1608be, 0.39);
+    --timer-days-border-color: #a9e69a;
+    --timer-days-hover-border-color	:#f5aca3;
+    --timer-days-font-color:white;
+    --timer-days-hover-font-color:#f4fc00;
+    width:inherit;
+    box-shadow: none;
+    display: inherit;
+    min-width: 200px;
+
+  }
+</style>
+
+
+<firebase-app auth-domain="ShacharCodeChallenge.firebaseapp.com" database-url="https://ShacharCodeChallenge.firebaseio.com/" api-key="AIzaSyA5755ciMTm0L0yY4DuiQW8lAphsFZpNfc" messaging-sender-id="291326929385">
+</firebase-app>
+<firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError">
+</firebase-auth>
+
+<firebase-messaging id="messaging" token="{{token}}" on-message="handleMessage">
+</firebase-messaging>
+
+
+
+
+<firebase-document id="document" path="/score/points" data="{{points}}"></firebase-document>
+<firebase-document id="document" path="/score/maxpoints" data="{{maxpoints}}"></firebase-document>
+
+
+
+
+    <app-header style="height: 300px">
+      <img src="../../images/icons/icon-512x512.png" style="height:250px">
+
+    <app-toolbar id="tb">
+      <div main-title="">Shachar's Code Challenge </div>
+    </app-toolbar>
+</app-header>
+
+
+<paper-button style="color:transparent;font-size:10px" on-tap="countClicks">Hidden Button To Activate Notification Sender!</paper-button>
+
+
+    <paper-material elevation="3">
+      <template is="dom-if" if="[[isScoreANumber(maxpoints)]]" restamp="true">
+
+      <p>Your Points So Far: [[points]]  </p>
+
+
+        <paper-progress min="0" max="[[maxpoints]]" value="[[points]]"></paper-progress>
+
+
+      </template>
+
+      <p>Time To complete the
+        <a href="https://docs.google.com/document/d/1IJeeqT0xPNoxxN7gP_1C9XPcS5-U3OpZqtL8iquUZwM/edit">next challenge</a>: </p>
+
+        <timer-days target-date="2016-12-11T23:00:00"></timer-days><br>
+
+
+    </paper-material>
+
+    <paper-material elevation="3">
+      <h2><u>Rules:</u></h2>
+      <p><strike>Every  <strong>CodeMonkey</strong> stage you gain +2 Points! </strike></p>
+      <p>For every lecture, you gain +10 Points! </p>
+      <p>Every time that you publish a new Feature, you gain +100 Points! </p>
+      <p>Every time that you publish a new Project, you gain +250 Points! </p>
+      <p>Roie and Saar will check your work, and fulfill rewards! </p>
+      <br><br>
+    </paper-material>
+
+
+    <paper-material elevation="3">
+      <h2><u>Prizes!</u></h2>
+
+        <p><strike>&lt;200 Points&gt; Pizza On Demand Service!  </strike></p>
+        <p><strike>&lt;400 Points&gt; In - bed pancakes breakfast </strike></p>
+        <p><strike>&lt;600 Points&gt; Movie Night - You Choose! </strike></p>
+        <p><strike>&lt;800 Points&gt; We Cook Anything You Want!- NUTELLA DAY</strike> </p>
+        <p><strike>&lt;1000 Points&gt; Mistery Gift ;) </strike>
+        </p><p>&lt;1100 Points&gt; Every Monkey's Dream...</p>
+        <p>&lt;1500 Points&gt; A single ticket to iJump </p>
+        <p>&lt;2000 Points&gt; Junk food night! </p>
+        <p>&lt;2500 points&gt; Escape room! 💡 🏃</p>
+        <p>&lt;3000 points&gt; 🏆 🙈 🙉 🙊 🏆</p>
+          <br><br>
+
+    </paper-material>
+
+    
+    
+    
+    
+    <template is="dom-if" if="{{showMinion}}">
+      <paper-material elevation="4">
+        <img src="/images/minionwhat.gif">
+      </paper-material>
+    </template>
+
+
+    <template is="dom-if" if="{{showNotificationSender}}">
+      <paper-material elevation="4">
+
+        <h1><u>Notification Sender!</u></h1>
+
+        <span>Send to:</span>
+        <paper-radio-group id="whoTo" selected="shachar">
+          <paper-radio-button name="shachar">Shachar</paper-radio-button>
+          <paper-radio-button name="roie">Roie</paper-radio-button>
+          <paper-radio-button name="roiemfba">Roie Second Acc</paper-radio-button>
+          <paper-radio-button name="saar">Saar</paper-radio-button>
+        </paper-radio-group>
+        <br><br>
+
+
+        <paper-input id="title" label="Title" value="😎 You are AWESOME! 😎" placeholder="This is where the title goes">
+          
+        </paper-input>
+        <paper-input id="body" label="Body" value="💕 and we love you. 💕" placeholder="This is where the body goes">
+          
+        </paper-input>
+        <paper-input id="urlOnPress" label="Click Action" value="https://shacharcodechallenge.firebaseapp.com" placeholder="Deafult:https://shacharcodechallenge.firebaseapp.com">
+        </paper-input>
+
+
+        <paper-button raised="" on-tap="sendNotif">Send Notification!</paper-button>
+
+        
+        <paper-button style="color:transparent;font-size:16px" on-tap="countClicks">Hidden Button To Activate Points Control!</paper-button>
+
+      </paper-material>
+    </template>
+
+    <template id="pointsController" is="dom-if" if="{{showPointsControl}}">
+<paper-material elevation="5">
+
+      <h1><u>Points Control</u></h1>
+
+      <p>Points: [[points]]</p>
+      <paper-slider min="200" max="[[maxpoints]]" pin="" value="{{points}}" editable=""></paper-slider>
+      <p>Max Points: [[maxpoints]]</p>
+      <paper-slider min="1500" max="20000" pin="" value="{{maxpoints}}" editable=""></paper-slider>
+    </paper-material>
+
+    </template>
+
+
+
+    </template>
+
+
+    <script>Polymer({is:"Shachar-Code-Motivation-Game-app",properties:{points:{type:Number,notify:!0},maxpoints:{type:Number,notify:!0},clicks:{type:Number,value:0},showNotificationSender:{type:Boolean,value:!1,notify:!0},showPointsControl:{type:Boolean,value:!1,notify:!0},showMinion:{type:Boolean,value:!1,notify:!0},user:{type:Object},token:{type:Object}},ready:function(){},isScoreANumber:function(e){var t="number"==typeof this.maxpoints;return console.log("is Score a Number yet: "+t+", its a "+typeof this.maxpoints),t},login:function(){return this.$.auth.signInWithPopup()},rnbutton:function(){console.log("Requesting permission..."),this.$.messaging.requestPermission().then(function(){console.log("permission ACCEPTED")})},handleMessage:function(e){console.log("Message received. ",e),1==confirm("Please dont send a notification to yourself!")?alert("Remember,you promised!"):alert("y u lil 💩")},saveToDb:function(){path=this.$.document.path,console.log("Path:"+path),token=this.$.messaging.token,console.log("token:"+token),console.log("Saving Token to DB"),this.$.document.save(path,token).then(function(){console.log("Token Saved!")})},countClicks:function(){for(;this.clicks<=10;){10==this.clicks&&(this.showMinion=!0,console.log("Ha Ha")),this.clicks+=1;break}for(;this.clicks>=11&&this.clicks<=30;){this.clicks+=1,30==this.clicks&&(this.showPointsControl=!0,console.log("Points Control activated!"),this.showNotificationSender=!0,console.log("Notification sender activated!"));break}},sendNotif:function(){var e="cUi5A79BF2I:APA91bF_vWQ7H19yG07vDkg2CO56_WqtNUQBkBwKf_8UtIo23xwECqXeKmUOGsHQaBGvRAe3d7jLtCbi1DpcRblJ5_cMeNnYeLLsfwJXe0wxuf0RdlxBFAtytVB-AIOn1i4htOT1pH0D",t="d6LWii1K3_c:APA91bEvZc4XDZQtaCKMJ56U-l-ePmScQ2hKcsLdoizYPY8GppvVwrfxRiIBvO3n_IYR65TQ4_tY5YSKs-nClPFqlXwiiRwHNGhQyzhGNDdcFjuGRUApUnU-M3e7XMenpfLw2vtU3gT4",o="esNK671im2M:APA91bGEVjK-7U-s1Xmi8eQLEpI5p1ktthAMQarOtJPMz2xh8uqtcFi5TkyxeqMMGbk7ZYVpKrZxUkUJv5Aw6z-aDQpkeVT_9wqrCm5J7qKwcZs7Ek4qG9cXuALvtPpLoyT4RBzCF9Hx",n="cI77GsQiFyU:APA91bGqIAmK1C5Wh172v6E-x7gxTi_dSbNqx2gCgcR6PllqOzZ26sdY8iFlEqzGxdH7CW1wPonP_LbFuQIIsKi5yXF5yyS_g72WB--FQuhImoxls-WPavxAIgttNJmDYevN0GvYGgNc";switch(document.getElementById("whoTo").selected){case"roie":recepient=e;break;case"roiemfba":recepient=o;break;case"saar":recepient=n;break;default:recepient=t}var i="key=AAAAQ9RwKek:APA91bEZg6iP8lDy2pu6mnMzrZxO4Vg-krCJI2pVyNDTy6p4jySI03Goxcf---BHPFGSE1MIpVsSmnsU2eo2OBkXdjANoaKl8W1js8n4IzDx7YP5U4w2w58CpdZUlG6IApLk_69e5vFmfnkEwZEsB1u9eIrnrk8gbg",s="https://fcm.googleapis.com/fcm/send",c=document.getElementById("urlOnPress").value,a=document.getElementById("title").value,l=document.getElementById("body").value,r={to:recepient,notification:{icon:"images/icons/icon-512x512.png",click_action:c,title:a,body:l}},p=new XMLHttpRequest;p.open("POST",s,!0),p.setRequestHeader("Content-type","application/json"),p.setRequestHeader("Authorization",i),p.send(JSON.stringify(r)),console.log("Notification Sent")}});</script>
+</dom-module>
+</body></html>

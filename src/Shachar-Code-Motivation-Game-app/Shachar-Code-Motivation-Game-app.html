@@ -1,0 +1,428 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+
+<link rel="import" href="../../bower_components/timer-days/timer-days.html">
+
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-messaging.html">
+
+
+
+<dom-module id="Shachar-Code-Motivation-Game-app">
+    <template>
+<style>
+      :host {
+
+        display: inherit;
+        text-align: center;
+        font-family: monospace;
+        font-weight: bold;
+        font-size: 22px;
+        color: #fff;
+
+
+
+
+      }
+      #tb {
+    /*background-color: #ba4feb;*/
+    text-align: center;
+    font-family: monospace;
+    font-size: 22px;
+
+  }
+
+  app-header {
+  --app-header-background-front-layer: {
+    background-image: url("../../images/icons/icon-512x512.png");
+  };
+}
+
+
+    paper-progress {
+     --paper-progress-active-color:  #b8ec0c;
+     --paper-progress-container-color:#0dcced;
+     --paper-progress-height: 10px;
+     height: inherit;
+     width: inherit;
+
+  }
+    paper-input{
+      width:50%;
+
+      display:inline-block;
+      --paper-input-container-color:white;
+      --paper-input-container-focus-color:white;
+      --paper-input-container-color:white;
+      --paper-input-container-focus-color:white;
+    }
+
+    paper-slider{
+      width:70%;
+      display:inline-flex;
+      --paper-slider-container-color:white;
+      --paper-slider-knob-color:white;
+      --paper-slider-pin-color:lightskyblue;
+      --paper-slider-font-color:white;
+      --paper-slider-knob-start-color:purple;
+    }
+
+    paper-radio-group{
+      --paper-input-container-color:white;
+      --paper-input-container-focus-color:white;
+      --paper-input-container-color:white;
+    }
+
+    paper-button{
+      display: block;
+    }
+
+  timer-days{
+    --timer-days-background-color:rgba(#1608be, 0.19);
+    --timer-days-hover-background-color:rgba(#1608be, 0.39);
+    --timer-days-border-color: #a9e69a;
+    --timer-days-hover-border-color	:#f5aca3;
+    --timer-days-font-color:white;
+    --timer-days-hover-font-color:#f4fc00;
+    width:inherit;
+    box-shadow: none;
+    display: inherit;
+    min-width: 200px;
+
+  }
+</style>
+<!-- Firebase -->
+<!-- an excelent guide on how to implement messaging: https://medium.com/step-up-labs/our-experience-with-firebase-cloud-messaging-318043e667e3#.u526pjnwx -->
+<firebase-app auth-domain="ShacharCodeChallenge.firebaseapp.com"
+database-url="https://ShacharCodeChallenge.firebaseio.com/"
+api-key="AIzaSyA5755ciMTm0L0yY4DuiQW8lAphsFZpNfc"
+messaging-sender-id="291326929385"
+>
+</firebase-app>
+<firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError">
+</firebase-auth>
+
+<firebase-messaging id="messaging"
+  token="{{token}}"
+  on-message="handleMessage">
+</firebase-messaging>
+
+
+<!-- <firebase-document id="document" path="/users/[[user.uid]]/token" data="{{token}}"></firebase-document> -->
+<!-- <firebase-document id="fbmaxpoints" path="/score/maxpoints" data="{{maxpoints}}"></firebase-document> -->
+<firebase-document id="document" path="/score/points" data="{{points}}"></firebase-document>
+<firebase-document id="document" path="/score/maxpoints" data="{{maxpoints}}"></firebase-document>
+<!-- <firebase-query id="query" path="/score" data="{{score}}"></firebase-query> -->
+
+
+<!-- Page beginning -->
+    <app-header style="height: 300px;"  >
+      <img src="../../images/icons/icon-512x512.png" style="height:250px;">
+
+    <app-toolbar id="tb">
+      <div main-title>Shachar's Code Challenge </div>
+    </app-toolbar>
+</app-header>
+
+<!-- a hidden button to activate the notification sender -->
+<paper-button style="color:transparent;font-size:10px" on-tap="countClicks">Hidden Button To Activate Notification Sender!</paper-button>
+
+
+    <paper-material elevation="3">
+      <template is="dom-if" if="[[isScoreANumber(maxpoints)]]" restamp="true">
+
+      <p>Your Points So Far: [[points]]  </b></p>
+
+
+        <paper-progress min="0" max="[[maxpoints]]" value=[[points]]></paper-progress>
+
+
+      </template>
+
+      <p>Time To complete the
+        <a href="https://docs.google.com/document/d/1IJeeqT0xPNoxxN7gP_1C9XPcS5-U3OpZqtL8iquUZwM/edit">next challenge</a>: </p>
+
+        <timer-days target-date="2016-12-11T23:00:00"></timer-days><br>
+
+
+    </paper-material>
+
+    <paper-material elevation="3">
+      <h2><u>Rules:</u></h2>
+      <p><strike>Every  <strong>CodeMonkey</strong> stage you gain +2 Points! </strike></p>
+      <p>For every lecture, you gain +10 Points! </p>
+      <p>Every time that you publish a new Feature, you gain +100 Points! </p>
+      <p>Every time that you publish a new Project, you gain +250 Points! </p>
+      <p>Roie and Saar will check your work, and fulfill rewards! </p>
+      <br><br>
+    </paper-material>
+
+
+    <paper-material elevation="3">
+      <h2><u>Prizes!</u></h2>
+
+        <p><strike><200 Points> Pizza On Demand Service!  </strike></p>
+        <p><strike><400 Points> In - bed pancakes breakfast </strike></p>
+        <p><strike><600 Points> Movie Night - You Choose! </strike></p>
+        <p><strike><800 Points> We Cook Anything You Want!- NUTELLA DAY</strike> </p>
+        <p><strike><1000 Points> Mistery Gift ;) </strike></li>
+        <p><1100 Points> Every Monkey's Dream...</p>
+        <p><1500 Points> A single ticket to iJump </p>
+        <p><2000 Points> Junk food night! </p>
+        <p><2500 points> Escape room! &#x1f4a1; &#x1f3c3;</p>
+        <p><3000 points> &#x1f3c6; &#x1f648; &#x1f649; &#x1f64a; &#x1f3c6;</p>
+          <br><br>
+
+    </paper-material>
+
+    <!-- <paper-button raised on-tap="login">Login</paper-button> -->
+    <!-- <paper-button raised on-tap="rnbutton">Notify?</paper-button> -->
+    <!-- <paper-button raised on-tap="saveToDb">Save Token</paper-button> -->
+    <!-- <p>[[token]]</p> -->
+    <template is="dom-if" if="{{showMinion}}">
+      <paper-material elevation="4">
+        <img src="/images/minionwhat.gif">
+      </paper-material>
+    </template>
+
+
+    <template is="dom-if" if="{{showNotificationSender}}">
+      <paper-material elevation="4">
+
+        <h1><u>Notification Sender!</u></h1>
+
+        <span>Send to:</span>
+        <paper-radio-group id="whoTo" selected="shachar">
+          <paper-radio-button name="shachar">Shachar</paper-radio-button>
+          <paper-radio-button name="roie">Roie</paper-radio-button>
+          <paper-radio-button name="roiemfba">Roie Second Acc</paper-radio-button>
+          <paper-radio-button name="saar">Saar</paper-radio-button>
+        </paper-radio-group>
+        <br><br>
+
+
+        <paper-input id="title" label="Title" value="😎 You are AWESOME! 😎" placeholder="This is where the title goes">
+          <!-- <emoji-selector suffix></emoji-selector> -->
+        </paper-input>
+        <paper-input id="body" label="Body" value="💕 and we love you. 💕" placeholder="This is where the body goes">
+          <!-- <emoji-selector suffix></emoji-selector> -->
+        </paper-input>
+        <paper-input id="urlOnPress" label="Click Action" value="https://shacharcodechallenge.firebaseapp.com" placeholder="Deafult:https://shacharcodechallenge.firebaseapp.com">
+        </paper-input>
+
+
+        <paper-button raised on-tap="sendNotif">Send Notification!</paper-button>
+
+        <!-- a hidden button to activate the Points Control -->
+        <paper-button style="color:transparent;font-size:16px" on-tap="countClicks">Hidden Button To Activate Points Control!</paper-button>
+
+      </paper-material>
+    </template>
+
+    <template id="pointsController" is="dom-if" if="{{showPointsControl}}">
+<paper-material elevation="5">
+
+      <h1><u>Points Control</u></h1>
+
+      <p>Points: [[points]]</p>
+      <paper-slider min="200" max="[[maxpoints]]" pin value="{{points}}" editable></paper-slider>
+      <p>Max Points: [[maxpoints]]</p>
+      <paper-slider min="1500" max="20000" pin value="{{maxpoints}}" editable></paper-slider>
+    </paper-material>
+
+    </template>
+
+
+
+    </template>
+
+
+    <script>
+        Polymer({
+
+            is: 'Shachar-Code-Motivation-Game-app',
+
+            properties: {
+
+                // score: {
+                //     type: Object,
+                //     notify: true,
+                //
+                // },
+                points:{
+                    type:Number,
+                    notify:true
+                },
+                maxpoints:{
+                    type:Number,
+                    notify:true
+                },
+
+                clicks: {
+                    type: Number,
+                    value: 0,
+                },
+
+                showNotificationSender: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+                showPointsControl: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+                showMinion: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+
+                user: {
+                    type: Object
+                },
+                token: {
+                    type: Object
+                },
+
+
+            },
+
+            ready: function() {
+              // // get data from db wehn the app starts!
+              //   firebase.database().ref('/score').once('value').then(function(snapshot) {
+              //
+              //       this.score = snapshot.val();
+              //   }.bind(this));
+            },
+            isScoreANumber: function(maxpoints) {
+            // use a computed binding for the dom-if  to tell it exactly when to attach.
+            var isIt = typeof this.maxpoints === 'number';
+            console.log("is Score a Number yet: " + isIt+", its a "+typeof this.maxpoints);
+            return isIt;
+          },
+
+                login: function() {
+                return this.$.auth.signInWithPopup();
+            },
+            rnbutton: function() {
+                console.log('Requesting permission...');
+                this.$.messaging.requestPermission().then(function() {
+                    console.log('permission ACCEPTED');
+
+                    // save2db
+                    // saveToDb();
+                });
+            },
+            handleMessage: function(payload) {
+                console.log("Message received. ", payload);
+
+                // Tell the user not send notifications to himself!
+
+                if (confirm("Please dont send a notification to yourself!") == true) {
+                    alert("Remember,you promised!");
+                } else {
+                    alert("y u lil 💩");
+                }
+            },
+
+
+            saveToDb: function() {
+                path = this.$.document.path;
+                console.log('Path:' + path);
+                token = this.$.messaging.token;
+                console.log('token:' + token);
+                console.log('Saving Token to DB');
+                this.$.document.save(path, token).then(function() {
+                    console.log("Token Saved!");
+                });
+            },
+
+            countClicks: function() {
+                // 10 fisrt clicks for Notifications, 9 additional clicks for points
+                while (this.clicks <= 10) {
+                    // console.log(this.clicks);
+                    if (this.clicks == 10) {
+                        this.showMinion = true;
+                        console.log("Ha Ha");
+                    }
+                    this.clicks += 1;
+                    break;
+                }
+                while ((this.clicks >= 11) && (this.clicks <= 30)) {
+                    // console.log(this.clicks);
+                    this.clicks += 1;
+                    if (this.clicks == 30) {
+                        this.showPointsControl = true;
+                        console.log("Points Control activated!");
+                        this.showNotificationSender = true;
+                        console.log("Notification sender activated!");
+                    }
+                    break;
+                }
+            },
+
+            sendNotif: function() {
+
+                var roieId = "cUi5A79BF2I:APA91bF_vWQ7H19yG07vDkg2CO56_WqtNUQBkBwKf_8UtIo23xwECqXeKmUOGsHQaBGvRAe3d7jLtCbi1DpcRblJ5_cMeNnYeLLsfwJXe0wxuf0RdlxBFAtytVB-AIOn1i4htOT1pH0D";
+                var shacharId = "d6LWii1K3_c:APA91bEvZc4XDZQtaCKMJ56U-l-ePmScQ2hKcsLdoizYPY8GppvVwrfxRiIBvO3n_IYR65TQ4_tY5YSKs-nClPFqlXwiiRwHNGhQyzhGNDdcFjuGRUApUnU-M3e7XMenpfLw2vtU3gT4";
+                var roiemfbaId = "esNK671im2M:APA91bGEVjK-7U-s1Xmi8eQLEpI5p1ktthAMQarOtJPMz2xh8uqtcFi5TkyxeqMMGbk7ZYVpKrZxUkUJv5Aw6z-aDQpkeVT_9wqrCm5J7qKwcZs7Ek4qG9cXuALvtPpLoyT4RBzCF9Hx";
+                var saarId = "cI77GsQiFyU:APA91bGqIAmK1C5Wh172v6E-x7gxTi_dSbNqx2gCgcR6PllqOzZ26sdY8iFlEqzGxdH7CW1wPonP_LbFuQIIsKi5yXF5yyS_g72WB--FQuhImoxls-WPavxAIgttNJmDYevN0GvYGgNc";
+                // decide who to send the notification to
+                switch (document.getElementById('whoTo').selected) {
+                    case "roie":
+                        recepient = roieId;
+                        break;
+                    case "roiemfba":
+                        recepient = roiemfbaId;
+                        break;
+                    case "saar":
+                        recepient = saarId;
+                        break;
+                    default:
+                        recepient = shacharId;
+
+                }
+
+                // Prep and clarify arguments for sendin the XHR request
+                var serverKey = "key=AAAAQ9RwKek:APA91bEZg6iP8lDy2pu6mnMzrZxO4Vg-krCJI2pVyNDTy6p4jySI03Goxcf---BHPFGSE1MIpVsSmnsU2eo2OBkXdjANoaKl8W1js8n4IzDx7YP5U4w2w58CpdZUlG6IApLk_69e5vFmfnkEwZEsB1u9eIrnrk8gbg"
+                var url = "https://fcm.googleapis.com/fcm/send";
+                var clickAction = document.getElementById('urlOnPress').value;
+                var contentTitle = document.getElementById('title').value;
+                var contentBody = document.getElementById('body').value;
+
+                var notificationContent = {
+                    "to": recepient,
+                    "notification": {
+                        "icon": "images/icons/icon-512x512.png",
+                        "click_action": clickAction,
+                        "title": contentTitle,
+                        "body": contentBody
+                    }
+                }
+                // send XHR request, could also be done with iron-ajax, but i wanted the vanilla JS way
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('Content-type', 'application/json');
+                xhr.setRequestHeader('Authorization', serverKey);
+
+                xhr.send(JSON.stringify(notificationContent));
+
+                console.log("Notification Sent");
+            }
+
+        });
+    </script>
+</dom-module>
